@@ -272,6 +272,12 @@ class StreamingPullManager(object):
                     "non-fatal as stream requests are best-effort.",
                     exc_info=True,
                 )
+            except exceptions.RetryError as exc:
+                # The underlying channel has been suffering from a retryable error
+                # for too long, time to give up and shut the streaming pull down.
+                self._on_rpc_done(exc)
+                raise
+
         else:
             self._rpc.send(request)
 
