@@ -70,7 +70,7 @@ class Message(object):
             published.
     """
 
-    def __init__(self, message, ack_id, request_queue):
+    def __init__(self, message, ack_id, request_queue, autolease=True):
         """Construct the Message.
 
         .. note::
@@ -85,6 +85,9 @@ class Message(object):
             request_queue (queue.Queue): A queue provided by the policy that
                 can accept requests; the policy is responsible for handling
                 those requests.
+            autolease (bool): An optional flag determining whether a new Message
+                instance should automatically lease itself upon creation.
+                Defaults to :data:`True`.
         """
         self._message = message
         self._ack_id = ack_id
@@ -98,7 +101,8 @@ class Message(object):
 
         # The policy should lease this message, telling PubSub that it has
         # it until it is acked or otherwise dropped.
-        self.lease()
+        if autolease:
+            self.lease()
 
     def __repr__(self):
         # Get an abbreviated version of the data.
