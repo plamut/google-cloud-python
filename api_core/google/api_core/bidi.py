@@ -535,13 +535,13 @@ class BackgroundConsumer(object):
                 # Python 2.7.
                 with self._wake:
                     if self._paused:
-                        _LOGGER.debug("paused, waiting for waking.")
+                        _LOGGER.debug("\x1b[0;31m paused, waiting for waking.\x1b[0m")
                         self._wake.wait()
-                        _LOGGER.debug("woken.")
+                        _LOGGER.debug("\x1b[0;31m woken.\x1b[0m")
 
-                _LOGGER.debug("waiting for recv.")
+                _LOGGER.debug("\x1b[1;31m waiting for recv. \x1b[0m")
                 response = self._bidi_rpc.recv()
-                _LOGGER.debug("recved response.")
+                _LOGGER.debug("\x1b[1;31m recved response.\x1b[0m")
                 self._on_response(response)
 
         except exceptions.GoogleAPICallError as exc:
@@ -609,11 +609,15 @@ class BackgroundConsumer(object):
         """
         with self._wake:
             self._paused = True
+            ##############
+            _LOGGER.debug("\x1b[1;34mBackground consumer now PAUSED.\x1b[0m")
+            ################
 
     def resume(self):
         """Resumes the response stream."""
         with self._wake:
             self._paused = False
+            _LOGGER.debug("\x1b[1;34mBackground consumer now RESUMED, notifying threads.\x1b[0m")
             self._wake.notifyAll()
 
     @property

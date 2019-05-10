@@ -114,6 +114,9 @@ class Dispatcher(object):
 
         ack_ids = [item.ack_id for item in items]
         request = types.StreamingPullRequest(ack_ids=ack_ids)
+        #################
+        _LOGGER.debug(f"\x1b[1;32mdispatcher sending ACK for {len(ack_ids)} messages\x1b[0m")
+        ###################
         self._manager.send(request)
 
         # Remove the message from lease management.

@@ -217,11 +217,15 @@ class StreamingPullManager(object):
 
     def maybe_pause_consumer(self):
         """Check the current load and pause the consumer if needed."""
+        #############
+        _LOGGER.debug("Current load: %.2f", self.load)
+        ################
         with self._pause_resume_lock:
             if self.load >= 1.0:
                 if self._consumer is not None and not self._consumer.is_paused:
                     _LOGGER.debug(
-                        "Message backlog over load at %.2f, pausing.", self.load
+                        "\x1b[0;36mMessage backlog over load at %.2f, pausing.\x1b[0m",
+                        self.load,
                     )
                     self._consumer.pause()
 
@@ -249,10 +253,10 @@ class StreamingPullManager(object):
             self._maybe_release_messages()
 
             if self.load < self.flow_control.resume_threshold:
-                _LOGGER.debug("Current load is %.2f, resuming consumer.", self.load)
+                _LOGGER.debug("\x1b[0;36mCurrent load is %.2f, resuming consumer.\x1b[0m", self.load)
                 self._consumer.resume()
             else:
-                _LOGGER.debug("Did not resume, current load is %.2f.", self.load)
+                _LOGGER.debug("\x1b[0;36mDid not resume, current load is %.2f.\x1b[0m", self.load)
 
     def _maybe_release_messages(self):
         """Release (some of) the held messages if the current load allows for it.
@@ -277,8 +281,8 @@ class StreamingPullManager(object):
                 [requests.LeaseRequest(ack_id=msg.ack_id, byte_size=msg.size)]
             )
             _LOGGER.debug(
-                "Released held message to leaser, scheduling callback for it, "
-                "still on hold %s.",
+                "\x1b[1;37mReleased held message to leaser, scheduling callback for it, "
+                "still on hold %s.\x1b[0m",
                 self._messages_on_hold.qsize(),
             )
             self._scheduler.schedule(self._callback, msg)
@@ -477,8 +481,9 @@ class StreamingPullManager(object):
         After the messages have all had their ack deadline updated, execute
         the callback for each message using the executor.
         """
+
         _LOGGER.debug(
-            "Processing %s received message(s), currenty on hold %s.",
+            "\x1b[1;37mProcessing %s received message(s), currenty on hold %s.\x1b[0m",
             len(response.received_messages),
             self._messages_on_hold.qsize(),
         )
@@ -511,7 +516,7 @@ class StreamingPullManager(object):
                 self._messages_on_hold.put(message)
 
         _LOGGER.debug(
-            "Scheduling callbacks for %s new messages, new total on hold %s.",
+             "\x1b[1;37mScheduling callbacks for %s new messages, new total on hold %s.\x1b[0m",
             len(invoke_callbacks_for),
             self._messages_on_hold.qsize(),
         )
